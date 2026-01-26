@@ -1,56 +1,73 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Pointer App</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="ui-container" class="hidden">
-      <div id="settingsPanel" class="panel">
-        <h3>✨ Magic Effects</h3>
 
+<head>
+  <meta charset="UTF-8" />
+  <title>Pointer App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="ui-container" class="hidden">
+    <div id="settingsPanel" class="panel">
+      <div class="panel-header">
+        <h3>✨ Magic Effects</h3>
+        <button id="minimizeBtn" title="Minimize">－</button>
+      </div>
+
+      <div class="panel-body-content">
         <div class="main-buttons">
           <button id="clearBtn">Clear</button>
+          <button id="penBtn" class="tool-btn active">Pen</button>
+          <button id="eraserBtn" class="tool-btn">Eraser</button>
           <button id="whiteboardBtn">Whiteboard OFF</button>
           <button id="msgMenuBtn">Message ▾</button>
         </div>
 
         <div id="msgListArea" class="msg-list-hidden">
-          <div class="msg-item">こんにちは</div>
-          <div class="msg-item">了解です</div>
-          <div class="msg-item">ありがとうございます</div>
-          <div class="msg-item">確認お願いします</div>
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 5px;">
+            <button id="editMsgBtn" style="width: auto; padding: 4px 8px; font-size: 10px;">Edit List</button>
+          </div>
+          <div id="msgItemsContainer">
+            <!-- Dynamic Items -->
+          </div>
+          <div id="msgEditContainer" style="display: none;">
+            <!-- Dynamic Inputs -->
+            <button id="saveMsgBtn" style="background: #28a745; margin-top: 10px;">Save</button>
+          </div>
         </div>
 
         <div class="option-section">
           <div id="optionToggle" class="option-header">Options ▾</div>
           <div id="optionContent" class="option-content-hidden">
-            <div class="setting-item">
-              <label>Theme Color</label>
-              <input type="color" id="panelColorPicker" value="#f97474" />
+            <div class="settings-row">
+              <div class="setting-col">
+                <label>Back Color</label>
+                <input type="color" id="panelColorPicker" value="#141414"
+                  style="width: 80px; height: 25px; border:none; padding:0;" />
+              </div>
+              <div class="setting-col" style="flex: 1;">
+                <label>Opacity: <span id="opacityVal">0.85</span></label>
+                <input type="range" id="panelOpacitySlider" min="0.1" max="1" step="0.05" value="0.85"
+                  style="width: 100%;" />
+              </div>
             </div>
-            <div class="setting-item">
-              <label>Wire life: <span id="lineLifeVal">2.5s</span></label>
-              <input
-                type="range"
-                id="lineLifeSlider"
-                min="0.5"
-                max="10"
-                step="0.5"
-                value="2.5"
-              />
+
+
+
+            <div class="setting-item" style="display: flex; align-items: center; justify-content: space-between;">
+              <span>Text Mode</span>
+              <input type="checkbox" id="textModeToggle" style="transform: scale(1.5);">
             </div>
-            <div class="setting-item">
-              <label>Text life: <span id="textLifeVal">3s</span></label>
-              <input
-                type="range"
-                id="textLifeSlider"
-                min="1"
-                max="10"
-                step="1"
-                value="3"
-              />
+            <div id="lifeSettingsArea">
+              <div class="setting-item">
+                <label>Wire life: <span id="lineLifeVal">2.5s</span></label>
+                <input type="range" id="lineLifeSlider" min="0.5" max="10" step="0.5" value="2.5" />
+              </div>
+              <div class="setting-item">
+                <label>Text life: <span id="textLifeVal">3s</span></label>
+                <input type="range" id="textLifeSlider" min="1" max="10" step="1" value="3" />
+              </div>
             </div>
           </div>
         </div>
@@ -58,13 +75,11 @@
         <p class="hint">Ctrl double tap to switch!</p>
       </div>
     </div>
+  </div>
 
-    <input
-      type="text"
-      id="hiddenInput"
-      style="position: absolute; opacity: 0; pointer-events: none"
-    />
-    <canvas id="canvas"></canvas>
-    <script src="renderer.js"></script>
-  </body>
+  <input type="text" id="hiddenInput" />
+  <canvas id="canvas"></canvas>
+  <script src="renderer.js"></script>
+</body>
+
 </html>

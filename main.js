@@ -1,7 +1,5 @@
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
-
-// ライブラリの読み込み（ログの結果に基づき、.uIOhook を抽出）
 const ioHookModule = require("uiohook-napi");
 const uiohook = ioHookModule.uIOhook;
 
@@ -23,17 +21,17 @@ function createWindow() {
     resizable: false,
     hasShadow: false,
     webPreferences: {
-      // --- ここを書き換えます ---
-      // path.join(__dirname, "preload.js") よりも安全な指定方法です
-      preload: path.join(app.getAppPath(), "preload.js"),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      // -----------------------
     },
   });
 
   mainWindow.loadFile("index.html");
   mainWindow.setIgnoreMouseEvents(true, { forward: true });
+
+  // DevTools for debugging (can be removed later)
+  // mainWindow.webContents.openDevTools({ mode: "detach" });
 }
 
 // 描画モードの切り替え
@@ -41,8 +39,8 @@ function toggleDrawingMode() {
   isDrawingMode = !isDrawingMode;
 
   if (isDrawingMode) {
-    mainWindow.setIgnoreMouseEvents(false); // マウスを捕まえる
-    mainWindow.focus(); // ★これを追加：OSに対してウィンドウを「アクティブ」にする
+    mainWindow.setIgnoreMouseEvents(false);
+    mainWindow.focus();
     mainWindow.webContents.send("mode-change", "drawing");
   } else {
     mainWindow.setIgnoreMouseEvents(true, { forward: true });
@@ -56,8 +54,9 @@ app.whenReady().then(() => {
   if (uiohook) {
     let lastCtrlTime = 0;
 
-    // キー入力監視（Ctrl 2回）
+    // Global Keydown Hook
     uiohook.on("keydown", (e) => {
+      // Toggle Mode: Ctrl (29 or 3613) double tap
       if (e.keycode === 29 || e.keycode === 3613) {
         const now = Date.now();
         if (now - lastCtrlTime < 300) {
@@ -65,21 +64,25 @@ app.whenReady().then(() => {
         }
         lastCtrlTime = now;
       }
+
+      // Send key to renderer for Text Input effect
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("global-keydown", { keycode: e.keycode });
+      }
     });
 
-    // マウスクリック監視（ここを追加！）
+    // Global Mouse Click Hook (Rainbow Sparkles)
     uiohook.on("mousedown", (e) => {
-      if (!isDrawingMode && mainWindow) {
-        // e.x や e.y を使う代わりに、Electron標準の「スケーリングを考慮した座標」を取得します
+      if (!isDrawingMode && mainWindow && !mainWindow.isDestroyed()) {
         const { screen } = require("electron");
         const point = screen.getCursorScreenPoint();
-
-        // ウィンドウが全画面（0,0から開始）であることを前提に、そのまま座標を送信
         mainWindow.webContents.send("spawn-spark", { x: point.x, y: point.y });
       }
     });
+
     uiohook.start();
   }
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
