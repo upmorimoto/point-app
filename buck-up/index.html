@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pointer App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="ui-container" class="hidden">
+      <div id="settingsPanel" class="panel">
+        <h3>✨ Magic Effects</h3>
+
+        <div class="main-buttons">
+          <button id="clearBtn">Clear</button>
+          <button id="whiteboardBtn">Whiteboard OFF</button>
+          <button id="msgMenuBtn">Message ▾</button>
+        </div>
+
+        <div id="msgListArea" class="msg-list-hidden">
+          <div class="msg-item">こんにちは</div>
+          <div class="msg-item">了解です</div>
+          <div class="msg-item">ありがとうございます</div>
+          <div class="msg-item">確認お願いします</div>
+        </div>
+
+        <div class="option-section">
+          <div id="optionToggle" class="option-header">Options ▾</div>
+          <div id="optionContent" class="option-content-hidden">
+            <div class="setting-item">
+              <label>Theme Color</label>
+              <input type="color" id="panelColorPicker" value="#f97474" />
+            </div>
+            <div class="setting-item">
+              <label>Wire life: <span id="lineLifeVal">2.5s</span></label>
+              <input
+                type="range"
+                id="lineLifeSlider"
+                min="0.5"
+                max="10"
+                step="0.5"
+                value="2.5"
+              />
+            </div>
+            <div class="setting-item">
+              <label>Text life: <span id="textLifeVal">3s</span></label>
+              <input
+                type="range"
+                id="textLifeSlider"
+                min="1"
+                max="10"
+                step="1"
+                value="3"
+              />
+            </div>
+          </div>
+        </div>
+
+        <p class="hint">Ctrl double tap to switch!</p>
+      </div>
+    </div>
+
+    <input
+      type="text"
+      id="hiddenInput"
+      style="position: absolute; opacity: 0; pointer-events: none"
+    />
+    <canvas id="canvas"></canvas>
+    <script src="renderer.js"></script>
+  </body>
+</html>
