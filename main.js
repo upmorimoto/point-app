@@ -20,6 +20,7 @@ function createWindow() {
     alwaysOnTop: true,
     resizable: false,
     hasShadow: false,
+    icon: path.join(__dirname, "icon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

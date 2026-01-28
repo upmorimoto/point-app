@@ -151,7 +151,7 @@ button.active {
 }
 
 .msg-list-show {
-  max-height: 200px;
+  max-height: 350px;
   margin: 10px 0;
   overflow-y: auto;
 }
@@ -243,9 +243,11 @@ input[type="range"] {
   pointer-events: none;
   font-family: 'Meiryo', sans-serif;
   font-weight: bold;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 0 #000;
   white-space: pre;
   z-index: 10000;
   font-size: 24px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* Color is handled via backgroundImage in JS */
 }

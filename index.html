@@ -32,8 +32,14 @@
             <!-- Dynamic Items -->
           </div>
           <div id="msgEditContainer" style="display: none;">
-            <!-- Dynamic Inputs -->
-            <button id="saveMsgBtn" style="background: #28a745; margin-top: 10px;">Save</button>
+            <div class="setting-item" style="margin-bottom: 10px;">
+              <label>Size: <span id="msgSizeVal">24</span>px</label>
+              <input type="range" id="msgSizeSlider" min="12" max="120" step="2" value="24" style="width: 100%;" />
+            </div>
+            <div id="msgEditInputs">
+              <!-- Dynamic Inputs -->
+            </div>
+            <!-- Save button is dynamically added in renderer.js, but I'll make sure it's handled -->
           </div>
         </div>
 

@@ -12,7 +12,7 @@ let isEraserMode = false;
 let drawing = false;
 let pendingText = null;
 let mx = 0, my = 0;
-let config = { lineLife: 2.5, textLife: 3.0 };
+let config = { lineLife: 2.5, textLife: 3.0, msgSize: 24 };
 
 // Sentence Mode Cursor
 let textCursor = { x: 50, y: 100 };
@@ -65,7 +65,8 @@ function saveSettings() {
     panelColorHex,
     panelOpacity,
     lineLife: config.lineLife,
-    textLife: config.textLife
+    textLife: config.textLife,
+    msgSize: config.msgSize
   };
   localStorage.setItem("appSettings", JSON.stringify(settings));
 }
@@ -79,6 +80,7 @@ function loadSettings() {
       if (s.panelOpacity) panelOpacity = parseFloat(s.panelOpacity) || 0.85;
       if (s.lineLife) config.lineLife = parseFloat(s.lineLife) || 2.5;
       if (s.textLife) config.textLife = parseFloat(s.textLife) || 3.0;
+      if (s.msgSize) config.msgSize = parseInt(s.msgSize) || 24;
     } catch (e) { }
   }
 }
@@ -107,6 +109,7 @@ function spawnFloatingText(text, x, y) {
   el.style.color = `hsl(${currentHue}, 100%, 75%)`;
   el.style.left = x + "px";
   el.style.top = (y - 20) + "px";
+  el.style.fontSize = config.msgSize + "px";
   document.body.appendChild(el);
 
   const createdAt = Date.now();
@@ -132,7 +135,9 @@ function spawnFloatingText(text, x, y) {
     el.style.opacity = opacity;
     el.style.transform = `translateY(${floatY}px)`;
     currentHue = (currentHue + 3) % 360;
-    el.style.color = `hsla(${currentHue}, 100%, 75%, ${opacity})`;
+    const col1 = `hsla(${currentHue}, 100%, 75%, ${opacity})`;
+    const col2 = `hsla(${(currentHue + 60) % 360}, 100%, 75%, ${opacity})`;
+    el.style.backgroundImage = `linear-gradient(to right, ${col1}, ${col2})`;
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
@@ -151,20 +156,32 @@ function loop() {
       if (progress >= 1) { allLines.splice(i, 1); continue; }
       if (progress > 0.7) alpha = 1 - (progress - 0.7) / 0.3;
     }
-    ctx.strokeStyle = `hsla(${l.hue}, 100%, 60%, ${alpha})`;
+    l.hue = (l.hue + 1) % 360;
+    const minX = Math.min(...l.points.map(p => p.x));
+    const maxX = Math.max(...l.points.map(p => p.x));
+    const grad = ctx.createLinearGradient(minX, 0, maxX, 0);
+    grad.addColorStop(0, `hsla(${l.hue}, 100%, 60%, ${alpha})`);
+    grad.addColorStop(1, `hsla(${(l.hue + 60) % 360}, 100%, 60%, ${alpha})`);
+    ctx.strokeStyle = grad;
     ctx.lineWidth = 6; ctx.lineCap = "round"; ctx.beginPath();
     l.points.forEach((p, idx) => idx === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
   }
 
   if (currentLine) {
-    ctx.strokeStyle = `hsl(${currentLine.hue}, 100%, 60%)`;
+    currentLine.hue = (currentLine.hue + 1) % 360;
+    const minX = Math.min(...currentLine.points.map(p => p.x));
+    const maxX = Math.max(...currentLine.points.map(p => p.x));
+    const grad = ctx.createLinearGradient(minX, 0, maxX, 0);
+    grad.addColorStop(0, `hsl(${currentLine.hue}, 100%, 60%)`);
+    grad.addColorStop(1, `hsl(${(currentLine.hue + 60) % 360}, 100%, 60%)`);
+    ctx.strokeStyle = grad;
     ctx.lineWidth = 6; ctx.lineCap = "round"; ctx.beginPath();
     currentLine.points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
   }
 
-  ctx.font = "bold 40px sans-serif"; ctx.textAlign = "center";
+  ctx.font = `bold ${config.msgSize * 1.5}px sans-serif`; ctx.textAlign = "center";
   for (let i = allTexts.length - 1; i >= 0; i--) {
     const t = allTexts[i];
     const progress = (now - t.createdAt) / (parseFloat(config.textLife) * 1000 || 3000);
@@ -174,8 +191,12 @@ function loop() {
       if (progress > 0.7) a = 1 - (progress - 0.7) / 0.3;
     }
     t.hue = (t.hue + 2) % 360;
-    ctx.fillStyle = `hsla(${t.hue}, 100%, 60%, ${a})`;
     const offsetY = isWhiteboardMode ? 0 : (progress * 100);
+    const textWidth = ctx.measureText(t.text).width;
+    const grad = ctx.createLinearGradient(t.x - textWidth / 2, 0, t.x + textWidth / 2, 0);
+    grad.addColorStop(0, `hsla(${t.hue}, 100%, 60%, ${a})`);
+    grad.addColorStop(1, `hsla(${(t.hue + 60) % 360}, 100%, 60%, ${a})`);
+    ctx.fillStyle = grad;
     ctx.fillText(t.text, t.x, t.y - offsetY);
   }
 
@@ -225,6 +246,17 @@ window.addEventListener("DOMContentLoaded", () => {
   lineLifeVal.innerText = config.lineLife + "s";
   textLifeSlider.value = config.textLife;
   textLifeVal.innerText = config.textLife + "s";
+
+  const msgSizeSlider = document.getElementById("msgSizeSlider");
+  const msgSizeVal = document.getElementById("msgSizeVal");
+  msgSizeSlider.value = config.msgSize;
+  msgSizeVal.innerText = config.msgSize;
+
+  msgSizeSlider.oninput = (e) => {
+    config.msgSize = parseInt(e.target.value);
+    msgSizeVal.innerText = config.msgSize;
+    saveSettings();
+  };
 
   document.getElementById("clearBtn").onclick = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -314,7 +346,8 @@ window.addEventListener("DOMContentLoaded", () => {
   function renderMessages() {
     const listContainer = document.getElementById("msgItemsContainer");
     const editContainer = document.getElementById("msgEditContainer");
-    listContainer.innerHTML = ""; editContainer.innerHTML = "";
+    const editInputs = document.getElementById("msgEditInputs");
+    listContainer.innerHTML = ""; editInputs.innerHTML = "";
     messages.forEach((text) => {
       const item = document.createElement("div"); item.className = "msg-item";
       if (pendingText === text) item.classList.add("selected");
@@ -341,12 +374,16 @@ window.addEventListener("DOMContentLoaded", () => {
       };
       listContainer.appendChild(item);
       const input = document.createElement("input"); input.type = "text"; input.className = "msg-input"; input.value = text;
-      editContainer.appendChild(input);
+      editInputs.appendChild(input);
     });
-    const saveBtn = document.createElement("button"); saveBtn.innerText = "Save Changes";
+    const oldSaveBtn = editContainer.querySelector("#saveMsgBtn");
+    if (oldSaveBtn) oldSaveBtn.remove();
+    const saveBtn = document.createElement("button");
+    saveBtn.id = "saveMsgBtn";
+    saveBtn.innerText = "Save Changes";
     saveBtn.style.cssText = "background: #28a745; margin-top: 10px;";
     saveBtn.onclick = () => {
-      messages = Array.from(editContainer.querySelectorAll(".msg-input")).map(i => i.value).filter(v => v.trim() !== "");
+      messages = Array.from(editInputs.querySelectorAll(".msg-input")).map(i => i.value).filter(v => v.trim() !== "");
       localStorage.setItem("appMessages", JSON.stringify(messages));
       document.getElementById("msgEditContainer").style.display = "none";
       document.getElementById("msgItemsContainer").style.display = "block";
