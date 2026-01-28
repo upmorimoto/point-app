@@ -91,10 +91,11 @@ body {
 }
 
 .panel-body-content {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
   max-height: 1000px;
   opacity: 1;
-  padding-bottom: 20px;
 }
 
 .panel.minimized {
@@ -127,7 +128,7 @@ button:hover {
 .main-buttons {
   display: flex;
   gap: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
@@ -241,7 +242,7 @@ input[type="range"] {
 .floating-text {
   position: fixed;
   pointer-events: none;
-  font-family: 'Meiryo', sans-serif;
+  font-family: "Meiryo", sans-serif;
   font-weight: bold;
   white-space: pre;
   z-index: 10000;
