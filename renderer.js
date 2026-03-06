@@ -53,10 +53,11 @@ function updatePanelStyle() {
     g = parseInt(panelColorHex.slice(3, 5), 16);
     b = parseInt(panelColorHex.slice(5, 7), 16);
   }
-  panel.style.background = `rgba(${r}, ${g}, ${b}, ${panelOpacity})`;
+  const rgba = `rgba(${r}, ${g}, ${b}, ${panelOpacity})`;
+  panel.style.background = rgba;
   panel.style.borderColor = `rgba(255, 255, 255, 0.1)`;
   if (isWhiteboardMode) {
-    canvas.style.backgroundColor = panelColorHex;
+    canvas.style.backgroundColor = rgba;
   }
 }
 
@@ -300,7 +301,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (isWhiteboardMode) {
         whiteboardBtn.innerText = "Whiteboard End";
         canvas.classList.add("whiteboard-active");
-        canvas.style.backgroundColor = panelColorHex; canvas.style.opacity = 1;
+        updatePanelStyle();
         if (lifeSettings) lifeSettings.style.display = "none";
         isSentenceMode = true; textModeToggle.checked = true;
       } else {

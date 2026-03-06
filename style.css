@@ -252,3 +252,8 @@ input[type="range"] {
   color: transparent;
   /* Color is handled via backgroundImage in JS */
 }
+
+/* 描画モード（drawing-mode）の時のカーソル設定 */
+.drawing-mode {
+  cursor: crosshair !important;
+}
